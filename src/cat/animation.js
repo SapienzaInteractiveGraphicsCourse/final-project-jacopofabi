@@ -1,7 +1,7 @@
 
 function createJumpAnimation(cat, mixers, actions) {
     const times = [0, 0.5, 1];
-    const values = [0, 0, 0, 0, 5, 0, 0, 0, 0];
+    const values = [cat.center.position.x, cat.center.position.y, cat.center.position.z, cat.center.position.x, cat.center.position.y + 5, cat.center.position.z, cat.center.position.x, cat.center.position.y, cat.center.position.z]
     const rP1 = rotateOnPoint(cat.leg1, new THREE.Vector3(3.01, -2.25, 5.26), new THREE.Vector3(1, 0, 0), -90 * THREE.MathUtils.DEG2RAD);
     const rP2 = rotateOnPoint(cat.leg2, new THREE.Vector3(-3.01, -2.25, 5.26), new THREE.Vector3(1, 0, 0), -90 * THREE.MathUtils.DEG2RAD);
     const rP3 = rotateOnPoint(cat.leg3, new THREE.Vector3(3.01, -2.25, -5.26), new THREE.Vector3(1, 0, 0), 90 * THREE.MathUtils.DEG2RAD);
@@ -41,7 +41,7 @@ function createJumpAnimation(cat, mixers, actions) {
     const clipJumpL2 = new THREE.AnimationClip("jumpLeg", length, tracksL2);
     const clipJumpL3 = new THREE.AnimationClip("jumpLeg", length, tracksL3);
     const clipJumpL4 = new THREE.AnimationClip("jumpLeg", length, tracksL4);
-    const mixerC = new THREE.AnimationMixer(cat.obj);
+    const mixerC = new THREE.AnimationMixer(cat.center);
     const mixerL1 = new THREE.AnimationMixer(cat.leg1);
     const mixerL2 = new THREE.AnimationMixer(cat.leg2);
     const mixerL3 = new THREE.AnimationMixer(cat.leg3);
@@ -68,7 +68,7 @@ function createJumpAnimation(cat, mixers, actions) {
 
 function createSlipAnimation(cat, mixers, actions) {
     const times = [0, 0.5, 1];
-    const values = [0, 0, 0, 0, -7.5, 0, 0, 0, 0];
+    const values = [cat.center.position.x, cat.center.position.y, cat.center.position.z, cat.center.position.x, cat.center.position.y - 4.2, cat.center.position.z, cat.center.position.x, cat.center.position.y, cat.center.position.z];
 
     const leg1Turned = cat.leg1.clone();//.rotateOnAxis(new THREE.Vector3(0, 1, 0), 90 * THREE.MathUtils.DEG2RAD);
     const leg2Turned = cat.leg2.clone();//.rotateOnAxis(new THREE.Vector3(0, 1, 0), -90 * THREE.MathUtils.DEG2RAD);
@@ -117,7 +117,7 @@ function createSlipAnimation(cat, mixers, actions) {
     const clipSlipL2 = new THREE.AnimationClip("slipLeg", length, tracksL2);
     const clipSlipL3 = new THREE.AnimationClip("slipLeg", length, tracksL3);
     const clipSlipL4 = new THREE.AnimationClip("slipLeg", length, tracksL4);
-    const mixerC = new THREE.AnimationMixer(cat.obj);
+    const mixerC = new THREE.AnimationMixer(cat.center);
     const mixerL1 = new THREE.AnimationMixer(cat.leg1);
     const mixerL2 = new THREE.AnimationMixer(cat.leg2);
     const mixerL3 = new THREE.AnimationMixer(cat.leg3);

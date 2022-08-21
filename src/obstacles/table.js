@@ -1,4 +1,14 @@
 
+function intersectionTable(table, cat)
+{
+    const limitPositionD = table.obj.position.y + table.intersectionLimit[0];
+    const limitPositionU = table.obj.position.y + table.intersectionLimit[1];
+
+    if (cat.obj.position.y + cat.center.position.y + (cat.height / 2) >= limitPositionU && cat.obj.position.y + cat.center.position.y - (cat.height / 2) <= limitPositionD)
+        return 1;
+    return 0;
+}
+
 function createTable()
 {
     const legW = 1.0;
@@ -13,6 +23,8 @@ function createTable()
     const top2H = 0.1;
     const top2D = top1D + 0.2;
     
+    const obj = new THREE.Object3D();
+
     const top1 = createCube(top1W, top1H, top1D, new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }));
 
     const top2 = createCube(top2W, top2H, top2D, new THREE.MeshPhongMaterial({ color: "white" }));
@@ -28,6 +40,19 @@ function createTable()
     leg2.position.x = -(top1W / 2 - 1);
     leg2.position.y = -(top1H + legH) / 2;
     top2.add(leg2);
-    
-    return (top1);
+
+    top1.position.y = (legH - top2H) / 2;
+
+    obj.add(top1);
+
+    const table = {
+        obj: obj,
+        width: top1W,
+        height: legH + top1H + top2H,
+        depth: top2D,
+        intersectionLimit: [(legH - top1H - top2H) / 2, (legH + top1H + top2H) / 2],
+        type: "table",
+    };
+
+    return (table);
 }

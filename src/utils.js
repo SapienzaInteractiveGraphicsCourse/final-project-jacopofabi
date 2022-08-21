@@ -1,4 +1,13 @@
 
+function newScale(obj, scale) {
+    obj.obj.scale.set(scale[0], scale[1], scale[2]);
+    obj.width *= scale[0];
+    obj.height *= scale[1];
+    obj.depth *= scale[2];
+    obj.intersectionLimit[0] *= scale[1];
+    obj.intersectionLimit[1] *= scale[1];
+}
+
 function createCube(width, height, depth, material) {
     const cubeGeometry = new THREE.BoxGeometry(width, height, depth);
     const cubeMesh = new THREE.Mesh(cubeGeometry, material);

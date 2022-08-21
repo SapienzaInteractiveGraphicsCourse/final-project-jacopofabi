@@ -1,8 +1,19 @@
-// we need three things: scene, camera and renderer
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0.5, 0.5, 0.5);
-// PerspectiveCamera(FieldOfView, aspectRatio, near, far)
-// near and far set what we don't want to render
+function changePosition(position, catdirection, speed, limit) {
+  position.addScaledVector(catdirection, speed);
+  if (position.x >= limit[0])
+    position.x = limit[0];
+  else if (position.x <= limit[1])
+    position.x = limit[1];
+  //if (position.y >= limit[2])
+  //  position.y = limit[2];
+  //else if (position.y <= limit[3])
+  //  position.y = limit[3];
+  //if (position.z >= limit[4])
+  //  position.z = limit[4];
+  //if (position.z <= limit[5])
+  //  position.z = limit[5];
+}
+
 const camera = new THREE.PerspectiveCamera(
   80,
   window.innerWidth / window.innerHeight,
@@ -10,136 +21,113 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-const loadManager = new THREE.LoadingManager();
-const loader = new THREE.TextureLoader(loadManager);
-const catTexture = [
-  new THREE.MeshBasicMaterial({
-    map: loader.load("cat/texture/lateralBody.png"),
-  }),
-  new THREE.MeshBasicMaterial({
-    map: loader.load("cat/texture/frontFace.png"),
-  }),
-  new THREE.MeshBasicMaterial({
-    map: loader.load("cat/texture/lateralFace.png"),
-  }),
-  new THREE.MeshBasicMaterial({
-    map: loader.load("cat/texture/lateralFace2.png"),
-  }),
-  new THREE.MeshBasicMaterial({
-    map: loader.load("cat/texture/eye.png"),
-  }),
-  new THREE.MeshBasicMaterial({
-    map: loader.load("cat/texture/nose.png"),
-  }),
-  new THREE.MeshBasicMaterial({
-    map: loader.load("cat/texture/ear.png"),
-  }),
-];
-
-const cat = createCat(catTexture);
-cat.obj.rotation.y += 180 * THREE.MathUtils.DEG2RAD;
-cat.obj.position.y += 7.5;
-cat.obj.position.z -= 0;
-scene.add(cat.obj);
-
-// pavimento
-const floor = createFloor(0x555555, 0, 0, 0);
-scene.add(floor);
-// ceiling
-const ceil = createFloor(0x00ffff, 0, 80, 0);
-scene.add(ceil);
-// muro dx
-const wallDx = createWall(0x00ff00, 40, 0, 0);
-scene.add(wallDx);
-// muro sx
-const wallSx = createWall(0xff0000, -40, 0, 0);
-scene.add(wallSx);
-
-camera.position.z = 50;
-camera.position.y = 40;
-
-var obstacles = [];
-
-// loop that runs every frame to render scene and camera
-var clock = new THREE.Clock();
-var time = 0;
-var nextSpawn = 1;
-var delta = 0;
-var direction = new THREE.Vector3(0, 0, 1);
-var catdirection = new THREE.Vector3(1, 0, 0);
-var speed = 20; // units a second - 2 seconds
-var catspeed = 0;
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-
+function main() {
+  const renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
-}
-function onKeyPress(key) {
-  if (key == "a" && cat != null) {
-    catspeed -= 5;
-  }
-  if (key == "d" && cat != null) {
-    catspeed += 5;
-  }
-}
-document.addEventListener(
-  "keypress",
-  (e) => {
-    onKeyPress(e.key, scene);
-  },
-  false
-);
-window.addEventListener("resize", onWindowResize, false);
+  document.body.appendChild(renderer.domElement);
 
-function animate() {
-  requestAnimationFrame(animate);
+  camera.position.set(0, 40, 50);
 
-  delta = clock.getDelta();
-  time += delta;
-  // if (time > nextSpawn) {
-  //   obj = obstaclesCreate(
-  //     "#" + Math.floor(Math.random() * 16777215).toString(16)
-  //   );
-  //   scene.add(obj);
-  //   obstacles.push(obj);
-  //   nextSpawn += 1;
-  // }
-  if (catspeed >= -0.5 && catspeed <= 0) catspeed = 0;
-  else if (catspeed < 0) catspeed += 0.5;
-  else if (catspeed <= 0.5) catspeed = 0;
-  else if (catspeed >= 0.5) catspeed -= 0.5;
-  console.log(catspeed);
-  cat.obj.position.addScaledVector(catdirection, catspeed * delta);
-  obstacles.forEach(function (cube) {
-    cube.position.addScaledVector(direction, speed * delta);
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-    if (cube.position.z > 51)
-      for (var i = 0; i < obstacles.length; i++) {
-        if (obstacles[i] === cube) {
-          obstacles.splice(i, 1);
-          scene.remove(cube);
-        }
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0.5, 0.5, 0.5);
+
+  var mainScene = {
+    scene: scene,
+    cat: null,
+    camera: camera,
+    catspeed: 0,
+    pause: false,
+    limit: [20, -20, 100, -100, 100, -100],
+  };
+
+  const light = new THREE.DirectionalLight(0xffffff, 1); // soft white light
+  light.position.set(0, 20, 20);
+  light.target.position.set(-10, 0, 0);
+  scene.add(light);
+  scene.add(light.target);
+
+  const mixers = [];
+  var clock = new THREE.Clock();
+
+  const loadManager = new THREE.LoadingManager();
+  const loader = new THREE.TextureLoader(loadManager);
+
+  loadCatTexture(loader);
+
+  loadManager.onLoad = () => {
+    var cat = createCat();
+    cat.obj.rotation.y += 180 * THREE.MathUtils.DEG2RAD;
+    cat.obj.position.y += cat.height / 2;
+    cat.obj.position.z -= 10;
+    scene.add(cat.obj);
+    mainScene.cat = cat;
+    cat.mixers.forEach((mixer) => {
+      mixers.push(mixer);
+    });
+  };
+
+  setControl(document, window, renderer, mainScene);
+
+  // pavimento
+  const floor = createFloor(0x555555, 0, 0, 0);
+  scene.add(floor);
+  // ceiling
+  const ceil = createFloor(0x00ffff, 0, 80, 0);
+  scene.add(ceil);
+  // muro dx
+  const wallDx = createWall(0x00ff00, 40, 0, 0);
+  scene.add(wallDx);
+  // muro sx
+  const wallSx = createWall(0xff0000, -40, 0, 0);
+  scene.add(wallSx);
+
+  var obstacles = [];
+  var time = 0;
+  var nextSpawn = 1;
+  var delta = 0;
+  var direction = new THREE.Vector3(0, 0, 1);
+  var catdirection = new THREE.Vector3(1, 0, 0);
+  var speed = 100; // units a second - 2 seconds
+  //var pause = false;
+
+  // loop that runs every frame to render scene and camera
+  function update() {
+    requestAnimationFrame(update);
+    delta = clock.getDelta(); //deve stare fuori dalla pausa
+    if (mainScene.cat != null && mainScene.pause == false) {
+      mixers.forEach((mixer) => {
+        mixer.update(delta);
+      });
+
+      time += delta;
+      if (time > nextSpawn) {
+        obj = obstaclesCreate("table");
+        scene.add(obj.obj);
+        obstacles.push(obj);
+        nextSpawn += 10;
       }
-  });
-  // cat.obj.rotation.x += 0.01;
-  // cat.obj.rotation.y += 0.01;
-  // cat.obj.rotation.z += 0.01;
-  // colorHex += 0;
-  // cube.material.color.setHex(colorHex);
-  // const geometry = new THREE.BoxGeometry(1, 1, 1);
-  // let colorHex = 0xff0000;
-  // let material = new THREE.MeshBasicMaterial({ color: colorHex });
-  // const cube = new THREE.Mesh(geometry, material);
-  // // console.log(cube);
-  // scene.add(cube);
-  // obstacles.append(cube);
-  renderer.render(scene, camera);
+      changePosition(mainScene.cat.obj.position, catdirection, mainScene.catspeed * delta, mainScene.limit);
+      if (mainScene.catspeed > 0.0)
+        mainScene.catspeed -= 5.0;
+      else if (mainScene.catspeed < 0.0)
+        mainScene.catspeed += 5.0;
+      obstacles.forEach(function (cube) {
+        cube.obj.position.addScaledVector(direction, speed * delta);
+        if (checkIntersection(cube, mainScene.cat))
+          mainScene.pause = true;
+        if (cube.obj.position.z > 51)
+          for (var i = 0; i < obstacles.length; i++) {
+            if (obstacles[i] == cube) {
+              obstacles.splice(i, 1);
+              scene.remove(cube.obj);
+              obstaclesDispose(cube);
+            }
+          }
+      });
+    }
+    renderer.render(scene, camera);
+  }
+  update();
 }
 
-animate();
+main();

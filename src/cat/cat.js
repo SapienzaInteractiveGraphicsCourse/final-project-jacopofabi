@@ -1,14 +1,22 @@
 var catTexture = [];
 
 function loadCatTexture(loader) {
-  catTexture =  [
-    new THREE.MeshPhongMaterial({map: loader.load("cat/texture/lateralBody.png")}),
-    new THREE.MeshPhongMaterial({map: loader.load("cat/texture/frontFace.png")}),
-    new THREE.MeshPhongMaterial({map: loader.load("cat/texture/lateralFace.png")}),
-    new THREE.MeshPhongMaterial({map: loader.load("cat/texture/lateralFace2.png")}),
-    new THREE.MeshPhongMaterial({map: loader.load("cat/texture/eye.png")}),
-    new THREE.MeshPhongMaterial({map: loader.load("cat/texture/nose.png")}),
-    new THREE.MeshPhongMaterial({map: loader.load("cat/texture/ear.png")}),
+  catTexture = [
+    new THREE.MeshPhongMaterial({
+      map: loader.load("cat/texture/lateralBody.png"),
+    }),
+    new THREE.MeshPhongMaterial({
+      map: loader.load("cat/texture/frontFace.png"),
+    }),
+    new THREE.MeshPhongMaterial({
+      map: loader.load("cat/texture/lateralFace.png"),
+    }),
+    new THREE.MeshPhongMaterial({
+      map: loader.load("cat/texture/lateralFace2.png"),
+    }),
+    new THREE.MeshPhongMaterial({ map: loader.load("cat/texture/eye.png") }),
+    new THREE.MeshPhongMaterial({ map: loader.load("cat/texture/nose.png") }),
+    new THREE.MeshPhongMaterial({ map: loader.load("cat/texture/ear.png") }),
   ];
 }
 
@@ -144,12 +152,15 @@ function createCat() {
   var headW = 10;
   var headH = 8;
   var headD = 8;
+
   var eyeW = 2.5;
   var eyeH = 2.5;
   var eyeD = 1;
+
   var noseW = 3;
   var noseH = 1.5;
   var noseD = 1;
+
   var earW = 3;
   var earH = 2;
   var earD = 2;
@@ -174,9 +185,14 @@ function createCat() {
   const cat = new THREE.Object3D();
   cat.name = "cat";
   const mixers = [];
-  const actions = { jump: [] , slip: []};
+  const actions = { jump: [], slip: [] };
 
-  const head = createCube(headW, headH, headD, createHeadMaterial(catTexture[1], catTexture[2], catTexture[3]));
+  const head = createCube(
+    headW,
+    headH,
+    headD,
+    createHeadMaterial(catTexture[1], catTexture[2], catTexture[3])
+  );
   head.position.set(0, bodyH / 2, bodyD / 2);
 
   const eye1 = createCube(eyeW, eyeH, eyeD, createEyeMaterial(catTexture[4]));
@@ -206,8 +222,6 @@ function createCat() {
   head.add(ear1);
   head.add(ear2);
 
-  cat.add(head);
-
   const body = createCube(
     bodyW,
     bodyH,
@@ -218,7 +232,7 @@ function createCat() {
   var tail = createTail(tailW, tailH, tailD, catTexture[0]);
   tail.position.set(0, bodyH / 2 - tailH / 2, -((bodyD + tailD) / 2));
   body.add(tail);
-  cat.add(body);
+  body.add(head);
 
   var legs = [];
   var foots = [];
@@ -268,8 +282,15 @@ function createCat() {
     body.add(legs[i]);
   }
 
+  const center = new THREE.Object3D();
+  center.add(body);
+  cat.add(center);
+
+  body.position.y = (bodyH / 2 + (legH - 1.5) + footH - headH - earH) / 2;
+
   var ret = {
     obj: cat,
+    center: center,
     head: head,
     ear1: ear1,
     ear2: ear2,
@@ -283,9 +304,11 @@ function createCat() {
     foot2: foots[1],
     foot3: foots[2],
     foot4: foots[3],
+    width: headW,
+    height: earH + headH + bodyH / 2 + (legH - 1.5) + footH,
+    depth: headD / 2 + bodyW + tailW,
     mixers: mixers,
     playAnimation: function (anim, loop, restart = false) {
-      console.log("ciao");
       if (
         actions[anim][0].time == 0 ||
         actions[anim][0].time == 1 ||

@@ -1,4 +1,7 @@
+
+
 function main() {
+
   var renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
@@ -12,7 +15,7 @@ function main() {
   camera.position.set(0, 0, 50);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0.5, 0.5, 0.5);
+  scene.background = new THREE.Color(1.0, 1.0, 1.0);
 
   var mainScene = {
     scene: scene,
@@ -41,7 +44,7 @@ function main() {
 
   loadManager.onLoad = () => {
     var cat = createCat();
-    scene.add(cat.obj);
+    //scene.add(cat.obj);
     mainScene.cat = cat;
     cat.mixers.forEach((mixer) => {
       mixers.push(mixer);
@@ -49,12 +52,21 @@ function main() {
     cat.playAnimation("slip", false);
   };
 
+  //var obj = createCeilingLamp(5, 5, 2);
+  //var obj = createWindow(10, 20, 1, 1);
+  var obj = createWall2("black");
+  scene.add(obj);
+
   function render() {
     const delta = clock.getDelta();
     mixers.forEach((mixer) => {
       mixer.update(delta);
     });
 
+    obj.rotation.x = mainScene.deltaX * THREE.MathUtils.DEG2RAD;
+    obj.rotation.y = mainScene.deltaY * THREE.MathUtils.DEG2RAD;
+    obj.rotation.z = mainScene.deltaZ * THREE.MathUtils.DEG2RAD;
+  
     if (mainScene.cat != null) {
       mainScene.cat.obj.rotation.x = mainScene.deltaX * THREE.MathUtils.DEG2RAD;
       mainScene.cat.obj.rotation.y = mainScene.deltaY * THREE.MathUtils.DEG2RAD;

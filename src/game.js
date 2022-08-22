@@ -29,7 +29,7 @@ function main() {
   camera.position.set(0, 40, 50);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0.5, 0.5, 0.5);
+  scene.background = new THREE.Color(1, 1, 1);
 
   var mainScene = {
     scene: scene,
@@ -45,6 +45,9 @@ function main() {
   light.target.position.set(-10, 0, 0);
   scene.add(light);
   scene.add(light.target);
+
+  var lightAmbient = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(lightAmbient);
 
   const mixers = [];
   var clock = new THREE.Clock();
@@ -72,16 +75,17 @@ function main() {
   const floor = createFloor(0x555555, 0, 0, 0);
   scene.add(floor);
   // ceiling
-  const ceil = createFloor(0x00ffff, 0, 80, 0);
+  const ceil = createFloor(0xffff00, 0, 80, 0);
   scene.add(ceil);
   // muro dx
-  const wallDx = createWall(0x00ff00, 40, 0, 0);
+  const wallDx = createWall(0xff00ff, 40, 0, 0);
   scene.add(wallDx);
   // muro sx
   const wallSx = createWall(0xff0000, -40, 0, 0);
   scene.add(wallSx);
 
   var obstacles = [];
+  var elements = [];
   var time = 0;
   var nextSpawn = 1;
   var delta = 0;
@@ -101,9 +105,22 @@ function main() {
 
       time += delta;
       if (time > nextSpawn) {
+        cLight = createCeilingLamp();
+        cLight.position.y = 78.5;
+        cLight.position.z = -1500;
+        cLight.rotation.x = 90 * THREE.MathUtils.DEG2RAD;
+
+        windowE = createWindow(30, 50, 1, 2);
+        windowE.position.set(39.5, 40, -1200);
+        windowE.rotation.y = -90 * THREE.MathUtils.DEG2RAD;
+
         obj = obstaclesCreate("table");
         scene.add(obj.obj);
+        scene.add(cLight);
+        scene.add(windowE);
         obstacles.push(obj);
+        elements.push(cLight);
+        elements.push(windowE);
         nextSpawn += 10;
       }
       changePosition(mainScene.cat.obj.position, catdirection, mainScene.catspeed * delta, mainScene.limit);
@@ -124,6 +141,11 @@ function main() {
             }
           }
       });
+      elements.forEach(function (elem) {
+        elem.position.addScaledVector(direction, speed * delta);
+        if (elem.position.z > 51)
+            scene.remove(elem);
+      })
     }
     renderer.render(scene, camera);
   }

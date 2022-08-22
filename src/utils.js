@@ -14,6 +14,12 @@ function createCube(width, height, depth, material) {
     return cubeMesh;
 }
 
+function createPlane(width, height, material) {
+    const planeGeometry = new THREE.PlaneGeometry(width, height);
+    const planeMesh = new THREE.Mesh(planeGeometry, material);
+    return planeMesh;
+}
+
 //** To Remove *//
 function resumePosition(obj, startObj) {
     obj.position.copy(startObj.position);

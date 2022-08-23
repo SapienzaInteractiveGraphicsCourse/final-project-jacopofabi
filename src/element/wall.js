@@ -1,40 +1,23 @@
-function createWall(wallColor, x, y, z) {
-  const geometry = new THREE.PlaneGeometry(10000, 10000);
+
+function createWall(wallColor, width, height) {
+  const geometry = new THREE.PlaneGeometry(width, height);
   const material = new THREE.MeshPhongMaterial({
     color: wallColor,
     side: THREE.DoubleSide,
   });
   const wall = new THREE.Mesh(geometry, material);
-  wall.position.x = x;
-  wall.position.y += y;
-  wall.position.z += z;
-  wall.rotation.y += 90 * THREE.MathUtils.DEG2RAD;
   return wall;
 }
 
-function createFloor(wallColor, x, y, z) {
-  const geometry = new THREE.PlaneGeometry(10000, 10000);
-  const material = new THREE.MeshPhongMaterial({
-    color: wallColor,
-    side: THREE.DoubleSide,
-  });
-  const wall = new THREE.Mesh(geometry, material);
-  wall.position.x = x;
-  wall.position.y += y;
-  wall.position.z += z;
-  wall.rotation.x += 90 * THREE.MathUtils.DEG2RAD;
-  return wall;
-}
-
-function createWall2(wallColor) {
+function createWallWindows(wallColor) {
 
   const ret = new THREE.Object3D();
 
   const wallShape = new THREE.Shape()
-  .moveTo(-60, -30)
-  .lineTo(60, -30)
-  .lineTo(60, 30)
-  .lineTo(-60, 30)
+  .moveTo(-60, -40)
+  .lineTo(60, -40)
+  .lineTo(60, 40)
+  .lineTo(-60, 40)
 
   const holeWindow1 = new THREE.Path()
   .moveTo(30, -20)
@@ -76,10 +59,7 @@ function createWall2(wallColor) {
   meshWall.add(w2);
   meshWall.add(w3);
 
-  ret.scale.set(0.1, 0.1, 0.1);
   ret.add(meshWall);
 
   return ret;
-
-
 }

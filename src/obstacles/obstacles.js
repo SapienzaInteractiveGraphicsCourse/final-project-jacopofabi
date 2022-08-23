@@ -12,13 +12,6 @@ function obstaclesCreate(type) {
   return obstacle;
 }
 
-function obstaclesDispose(obj) {
-  obj.obj.children.forEach((child) => {
-    child.geometry.dispose();
-    child.material.dispose();
-  });
-}
-
 function isInRangeZ(obstacle, player) {
   var p1 = player.position.z - player.size.z / 2;
   var p2 = p1 + player.size.z;

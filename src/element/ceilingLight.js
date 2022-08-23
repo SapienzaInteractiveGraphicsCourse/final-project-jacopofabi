@@ -26,7 +26,7 @@ function createCeilingLamp(width, height, deep)
 
     const geometryLight = new THREE.ShapeGeometry(holeShape);
     const materialLight = new THREE.MeshBasicMaterial({
-        color: 0xff0000,
+        color: 0xffffff,
         opacity: 0.2,
     })
     const meshLight = new THREE.Mesh(geometryLight, materialLight);

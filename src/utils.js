@@ -1,4 +1,40 @@
 
+function placeObj(obj, pos, rot, scale) {
+    if (pos != null)
+        obj.position.set(pos[0], pos[1], pos[2]);
+    if (rot != null)
+        obj.rotation.set(rot[0], rot[1], rot[2]); //da verificare che rotation.set esista
+    if (scale != null)
+        obj.scale.set(scale[0], scale[1], scale[0]);
+}
+
+function disposeFromArray(scene, obj, array) {
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] == obj) {
+          array.splice(i, 1);
+          scene.remove(obj);
+          objDispose(obj);
+        }
+    }
+}
+
+function disposeFromArrayObstacle(scene, obj, array) {
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] == obj) {
+          array.splice(i, 1);
+          scene.remove(obj.obj);
+          objDispose(obj.obj);
+        }
+    }
+}
+
+function objDispose(obj) {
+    obj.children.forEach((child) => {
+      child.geometry.dispose();
+      child.material.dispose();
+    });
+  }
+
 function newScale(obj, scale) {
     obj.obj.scale.set(scale[0], scale[1], scale[2]);
     obj.width *= scale[0];

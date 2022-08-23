@@ -26,7 +26,7 @@ function main() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
-  camera.position.set(0, 40, 50);
+  camera.position.set(0, 40, 40);
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(1, 1, 1);
@@ -37,12 +37,16 @@ function main() {
     camera: camera,
     catspeed: 0,
     pause: false,
+    elementsA: [],
+    wallsA: [],
+    obstaclesA: [],
     limit: [20, -20, 100, -100, 100, -100],
   };
 
-  const light = new THREE.DirectionalLight(0xffffff, 1); // soft white light
-  light.position.set(0, 20, 20);
-  light.target.position.set(-10, 0, 0);
+  const light = new THREE.DirectionalLight(0xffffff, 0.4); // soft white light
+  light.position.set(900, 900, -200);
+  light.target.position.set(0, 0, 0);
+  light.castShadow = true;
   scene.add(light);
   scene.add(light.target);
 
@@ -56,6 +60,8 @@ function main() {
   const loader = new THREE.TextureLoader(loadManager);
 
   loadCatTexture(loader);
+
+  var cLight;
 
   loadManager.onLoad = () => {
     var cat = createCat();
@@ -71,21 +77,8 @@ function main() {
 
   setControl(document, window, renderer, mainScene);
 
-  // pavimento
-  const floor = createFloor(0x555555, 0, 0, 0);
-  scene.add(floor);
-  // ceiling
-  const ceil = createFloor(0xffff00, 0, 80, 0);
-  scene.add(ceil);
-  // muro dx
-  const wallDx = createWall(0xff00ff, 40, 0, 0);
-  scene.add(wallDx);
-  // muro sx
-  const wallSx = createWall(0xff0000, -40, 0, 0);
-  scene.add(wallSx);
+  createWay(mainScene);
 
-  var obstacles = [];
-  var elements = [];
   var time = 0;
   var nextSpawn = 1;
   var delta = 0;
@@ -110,17 +103,11 @@ function main() {
         cLight.position.z = -1500;
         cLight.rotation.x = 90 * THREE.MathUtils.DEG2RAD;
 
-        windowE = createWindow(30, 50, 1, 2);
-        windowE.position.set(39.5, 40, -1200);
-        windowE.rotation.y = -90 * THREE.MathUtils.DEG2RAD;
-
         obj = obstaclesCreate("table");
         scene.add(obj.obj);
         scene.add(cLight);
-        scene.add(windowE);
-        obstacles.push(obj);
-        elements.push(cLight);
-        elements.push(windowE);
+        mainScene.obstaclesA.push(obj);
+        mainScene.elementsA.push(cLight);
         nextSpawn += 10;
       }
       changePosition(mainScene.cat.obj.position, catdirection, mainScene.catspeed * delta, mainScene.limit);
@@ -128,24 +115,12 @@ function main() {
         mainScene.catspeed -= 5.0;
       else if (mainScene.catspeed < 0.0)
         mainScene.catspeed += 5.0;
-      obstacles.forEach(function (cube) {
-        cube.obj.position.addScaledVector(direction, speed * delta);
-        if (checkIntersection(cube, mainScene.cat))
+      mainScene.obstaclesA.forEach(function (obstacle) {
+        obstacle.obj.position.addScaledVector(direction, speed * delta);
+        if (checkIntersection(obstacle, mainScene.cat))
           mainScene.pause = true;
-        if (cube.obj.position.z > 51)
-          for (var i = 0; i < obstacles.length; i++) {
-            if (obstacles[i] == cube) {
-              obstacles.splice(i, 1);
-              scene.remove(cube.obj);
-              obstaclesDispose(cube);
-            }
-          }
       });
-      elements.forEach(function (elem) {
-        elem.position.addScaledVector(direction, speed * delta);
-        if (elem.position.z > 51)
-            scene.remove(elem);
-      })
+      updateScene(mainScene, delta);
     }
     renderer.render(scene, camera);
   }

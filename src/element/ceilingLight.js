@@ -1,6 +1,6 @@
 function createCeilingLamp(width, height, deep)
 {
-    const ret = new THREE.Object3D();
+    const obj = new THREE.Object3D();
 
     const ringShape = new THREE.Shape()
     .moveTo(-1.853, -1.853)
@@ -26,7 +26,7 @@ function createCeilingLamp(width, height, deep)
 
     const geometryLight = new THREE.ShapeGeometry(holeShape);
     const materialLight = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
+        color: 0xFFFFCC,
         opacity: 0.2,
     })
     const meshLight = new THREE.Mesh(geometryLight, materialLight);
@@ -45,15 +45,26 @@ function createCeilingLamp(width, height, deep)
     const target = new THREE.Object3D();
     target.position.set(0.0, 0.0, 1.0);
 
-    const spotLight = new THREE.SpotLight( 0xffffff );
+    const spotLight = new THREE.SpotLight( 0xFFFFCC );
+    spotLight.intensity = 0.6;
+    spotLight.decay = 2;
+    spotLight.penumbra = 0.2;
+    spotLight.distance = 200;
     spotLight.angle = Math.PI / 8;
     spotLight.position.set(0, 0, 0.5);
     spotLight.target = target;
 
-    ret.add(meshLight);
-    ret.add(lamp);
-    ret.add(spotLight);
-    ret.add(target);
+    obj.add(meshLight);
+    obj.add(lamp);
+    obj.add(spotLight);
+    obj.add(target);
+
+    const ret = {
+      obj: obj,
+      dispose: function() {
+        objDispose(this.obj);
+      },
+    }
 
     return ret;
 }

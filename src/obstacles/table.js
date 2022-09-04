@@ -52,6 +52,27 @@ function createTable()
         depth: top2D,
         intersectionLimit: [(legH - top1H - top2H) / 2, (legH + top1H + top2H) / 2],
         type: "table",
+        dispose: function () {
+            objDispose(this.obj);
+        },
+        checkIntersection: function (cat) {
+            const pT = new THREE.Vector3();
+            const pC = new THREE.Vector3();
+            const pCC = new THREE.Vector3();
+
+            this.obj.getWorldPosition(pT);
+            cat.obj.getWorldPosition(pC);
+            cat.center.getWorldPosition(pCC);
+
+            const limitPositionD = pT.y + table.intersectionLimit[0];
+            const limitPositionU = pT.y + table.intersectionLimit[1];
+
+            console.log("Le misure: ", pT, "pc: ", pC, "pcc: ", pCC);
+
+            if (pC.y + pCC.y + (cat.height / 2) >= limitPositionU && pC.y + pCC.y - (cat.height / 2) <= limitPositionD)
+                return true;
+            return false;
+        }
     };
 
     return (table);

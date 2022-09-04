@@ -20,3 +20,10 @@ function isInRangeZ(obstacle, player) {
   if (o1 <= p2 && o1 >= p1) return true;
   return false;
 }
+
+/*function roomsection(obstacle, player) {
+  if (isInRangeZ(obstacle, player)) {
+    return true;
+  }
+  return false;
+}*/

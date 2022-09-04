@@ -21,6 +21,7 @@ function createWindow(width, height, depth, shift = 0.5)
         roughness: 0,
         transmission: 0.7,
         thickness: 0.5,
+        side: THREE.DoubleSide,
     });
     const meshInnerWindow = new THREE.Mesh(geometryInnerWindow, materialInnerWindow);
 
@@ -32,7 +33,8 @@ function createWindow(width, height, depth, shift = 0.5)
 
     const geometryWindow = new THREE.ExtrudeGeometry(edge, extrudeSettings);
     const materialWindow = new THREE.MeshPhongMaterial({
-        color: 0x964B00,
+        color: 0x000000,
+        side: THREE.DoubleSide,
     });
     const meshWindow = new THREE.Mesh(geometryWindow, materialWindow);
 

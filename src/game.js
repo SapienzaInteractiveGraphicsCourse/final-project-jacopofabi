@@ -1,3 +1,4 @@
+
 function changePosition(position, catdirection, speed, limit) {
   position.addScaledVector(catdirection, speed);
   if (position.x >= limit[0])
@@ -17,7 +18,7 @@ function changePosition(position, catdirection, speed, limit) {
 const camera = new THREE.PerspectiveCamera(
   80,
   window.innerWidth / window.innerHeight,
-  0.1,
+  0.1, 
   1000
 );
 
@@ -28,23 +29,32 @@ function main() {
 
   camera.position.set(0, 40, 40);
 
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(1, 1, 1);
+  const scene = new THREE.Scene(); 
+  scene.background = new THREE.Color("rgb(255, 255, 255)");
 
   var mainScene = {
     scene: scene,
     cat: null,
     camera: camera,
     catspeed: 0,
+    ambientSpeed: 100,
     pause: false,
+    room: null,
     elementsA: [],
     wallsA: [],
     obstaclesA: [],
+    tweenGA: [],
     limit: [20, -20, 100, -100, 100, -100],
+    distance: 0,
+    limitDistance: 6,
+    widthRoom: 80,
+    heightRoom: 80,
+    depthRoom: 120,
+    mixers: [],
   };
 
-  const light = new THREE.DirectionalLight(0xffffff, 0.4); // soft white light
-  light.position.set(900, 900, -200);
+  const light = new THREE.DirectionalLight(0xffffff, 0.7); // soft white light
+  light.position.set(150, 50, -100);
   light.target.position.set(0, 0, 0);
   light.castShadow = true;
   scene.add(light);
@@ -53,15 +63,13 @@ function main() {
   var lightAmbient = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(lightAmbient);
 
-  const mixers = [];
   var clock = new THREE.Clock();
 
   const loadManager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(loadManager);
 
   loadCatTexture(loader);
-
-  var cLight;
+  loadWallTexture(loader);
 
   loadManager.onLoad = () => {
     var cat = createCat();
@@ -71,56 +79,39 @@ function main() {
     scene.add(cat.obj);
     mainScene.cat = cat;
     cat.mixers.forEach((mixer) => {
-      mixers.push(mixer);
+      mainScene.mixers.push(mixer);
     });
+    createWay(mainScene);
   };
 
   setControl(document, window, renderer, mainScene);
 
-  createWay(mainScene);
-
-  var time = 0;
-  var nextSpawn = 1;
   var delta = 0;
-  var direction = new THREE.Vector3(0, 0, 1);
   var catdirection = new THREE.Vector3(1, 0, 0);
-  var speed = 100; // units a second - 2 seconds
   //var pause = false;
 
   // loop that runs every frame to render scene and camera
   function update() {
     requestAnimationFrame(update);
     delta = clock.getDelta(); //deve stare fuori dalla pausa
+    mainScene.tweenGA.forEach(group => {
+      group.update();
+    });
     if (mainScene.cat != null && mainScene.pause == false) {
-      mixers.forEach((mixer) => {
+      mainScene.mixers.forEach((mixer) => {
         mixer.update(delta);
       });
-
-      time += delta;
-      if (time > nextSpawn) {
-        cLight = createCeilingLamp();
-        cLight.position.y = 78.5;
-        cLight.position.z = -1500;
-        cLight.rotation.x = 90 * THREE.MathUtils.DEG2RAD;
-
-        obj = obstaclesCreate("table");
-        scene.add(obj.obj);
-        scene.add(cLight);
-        mainScene.obstaclesA.push(obj);
-        mainScene.elementsA.push(cLight);
-        nextSpawn += 10;
-      }
       changePosition(mainScene.cat.obj.position, catdirection, mainScene.catspeed * delta, mainScene.limit);
       if (mainScene.catspeed > 0.0)
         mainScene.catspeed -= 5.0;
       else if (mainScene.catspeed < 0.0)
         mainScene.catspeed += 5.0;
-      mainScene.obstaclesA.forEach(function (obstacle) {
-        obstacle.obj.position.addScaledVector(direction, speed * delta);
-        if (checkIntersection(obstacle, mainScene.cat))
-          mainScene.pause = true;
-      });
       updateScene(mainScene, delta);
+      mainScene.room = checkIn(mainScene.cat, mainScene.elementsA, mainScene.wallsA);
+      if (mainScene.room && checkIntersection(mainScene.room.obstacles, mainScene.cat))
+        mainScene.pause = true;
+      mainScene.pause = true;
+      console.log("La room in cui è dentro:", mainScene.room);
     }
     renderer.render(scene, camera);
   }

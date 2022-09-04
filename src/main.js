@@ -43,7 +43,7 @@ function main() {
 
   loadManager.onLoad = () => {
     var cat = createCat();
-    scene.add(cat.obj);
+    //scene.add(cat.obj);
     mainScene.cat = cat;
     cat.mixers.forEach((mixer) => {
       mixers.push(mixer);
@@ -53,8 +53,11 @@ function main() {
 
   //var obj = createCeilingLamp(5, 5, 2);
   //var obj = createWindow(10, 20, 1, 1);
-  var obj = createWall2("black");
-  //scene.add(obj);
+  var obj = createTransitionRoom();
+  obj.scale.set(0.2, 0.2, 0.2);
+  scene.add(obj);
+
+  console.log(obj.position);
 
   function render() {
     const delta = clock.getDelta();

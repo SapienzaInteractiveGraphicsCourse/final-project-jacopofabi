@@ -12,26 +12,19 @@ function disposeFromArray(scene, obj, array) {
     for (var i = 0; i < array.length; i++) {
         if (array[i] == obj) {
           array.splice(i, 1);
-          scene.remove(obj);
-          objDispose(obj);
-        }
-    }
-}
-
-function disposeFromArrayObstacle(scene, obj, array) {
-    for (var i = 0; i < array.length; i++) {
-        if (array[i] == obj) {
-          array.splice(i, 1);
           scene.remove(obj.obj);
-          objDispose(obj.obj);
+          obj.dispose();
+          break ;
         }
     }
 }
 
 function objDispose(obj) {
     obj.children.forEach((child) => {
-      child.geometry.dispose();
-      child.material.dispose();
+        if (child.geometry != null)  //probabile che si possa levare
+            child.geometry.dispose();
+        if (child.material != null)  //probabile che si possa levare
+            child.material.dispose();
     });
   }
 
@@ -62,6 +55,13 @@ function resumePosition(obj, startObj) {
     obj.rotation.copy(startObj.rotation);
 }
 
+function rotateOnPointV2(obj, point, axis, angle) {
+    obj.position.sub(point);
+    obj.position.applyAxisAngle(axis, angle);
+    obj.position.add(point);
+    obj.rotateOnAxis(axis, angle);
+}
+
 function rotateOnPoint(obj, point, axis, angle) {
     var newObj = obj.clone();
     newObj.position.sub(point);
@@ -69,4 +69,8 @@ function rotateOnPoint(obj, point, axis, angle) {
     newObj.position.add(point);
     newObj.rotateOnAxis(axis, angle);
     return ([newObj.position, newObj.quaternion]);
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
 }

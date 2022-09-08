@@ -1,60 +1,79 @@
 
-function moveWall(wall, position, elements) {
-    var i = position - 1;
-    if (i == -1)
-        i = 5;
-    wall.connect(elements[i]);
+var flag = true;
+
+function addRoom(scene, memory, lastObj, wallsA) {
+    const toRet = [];
+    var conPoiA;
+    var wall;
+
+    for (var i = 0; i < lastObj.length; i++) {
+        conPoiA = lastObj[i].getConnectionPoints();
+        for (var j = 0; j < conPoiA.length; j++) {
+            wall = takeElement(memory, "Room");
+            wall.available = false;
+            wall.populate(memory);
+            scene.add(wall.obj);
+            wall.connect(conPoiA[j]);
+            wallsA.push(wall);
+            toRet.push(wall);
+        }
+    }
+    return (toRet);
 }
 
-function addTransitionRoom(mainScene, wallsArray, position, elementsArray) {
-    var i = position - 1;
-    if (i == -1)
-        i = 5;
+function addTransitionRoom(mainScene, memory, elementsArray) {
 
-    const tRoom = createTransitionRoom(mainScene.widthRoom, mainScene.heightRoom, mainScene.depthRoom);
-    tRoom.connect(wallsArray[i]);
+    const toRet = [];
+
+    const tRoom = createTransitionRoom(memory);
+    tRoom.available = false;
+    tRoom.connect(mainScene.lastObj[0].getConnectionPoints()[0]);
 
     mainScene.scene.add(tRoom.obj);
     elementsArray.push(tRoom);
 
-    disposeFromArray(mainScene.scene, wallsArray[position], wallsArray);
-
-    tRoom.addRooms(mainScene);
+    toRet.push(tRoom);
+    return(toRet);
 }
 
-function updateScene(mainScene, delta) {
-    var i = 0;
-    var transitionPosition = 0;
+function updateScene(mainScene, memory, delta) {
+    //console.log(memory);
+    //console.log(mainScene.wallsA);
+    //console.log(mainScene.elementsA);
     var toMove = [];
-    var toDelete = [];
     mainScene.wallsA.forEach(function (elem) {
         elem.obj.position.addScaledVector(new THREE.Vector3(0, 0, 1), mainScene.ambientSpeed * delta);
         if (elem.obj.position.z > 71) {
-            if (mainScene.wallsA.length < 7) {
-                toMove.push([elem, i, mainScene.wallsA]);
+            for (var i = 0; i < mainScene.lastObj.length; i++) {
+                if (mainScene.lastObj[i] == elem) {
+                    mainScene.lastObj.splice(i, 1);
+                    i--;
+                }
+            }
+            toMove.push(elem);
+            if (flag)
                 mainScene.distance += 1;
-                transitionPosition = i;
-            }
-            else {
-                toDelete.push(elem);
-            }
         }
-        i++;
-    })
-    toMove.forEach(function (elem) {
-        moveWall(elem[0], elem[1], elem[2]);
-    });
-    toDelete.forEach(function (elem) {
-        disposeFromArray(mainScene.scene, elem, mainScene.wallsA);
     })
     mainScene.elementsA.forEach(function (elem) {
         elem.obj.position.addScaledVector(new THREE.Vector3(0, 0, 1), mainScene.ambientSpeed * delta);
         if (elem.obj.position.z > 71) {
-            disposeFromArray(mainScene.scene, elem, mainScene.elementsA);
+            removeFromArray(mainScene.scene, elem, mainScene.elementsA);
+            flag = true;
+            if (elem.type != "TB")
+                elem.enabled = true;
+        }
+    });
+    toMove.forEach(function (elem) {
+        elem.empty();
+        removeFromArray(mainScene.scene, elem, mainScene.wallsA);
+        if (mainScene.wallsA.length <= (6 * mainScene.lastObj.length)) {
+            mainScene.lastObj = addRoom(mainScene.scene, memory, mainScene.lastObj, mainScene.wallsA);
         }
     });
     if (mainScene.distance > mainScene.limitDistance) {
-        addTransitionRoom(mainScene, mainScene.wallsA, transitionPosition, mainScene.elementsA);
+        mainScene.lastObj = addTransitionRoom(mainScene, memory, mainScene.elementsA);
+        flag = false;
         mainScene.distance = 0;
     }
 }

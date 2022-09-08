@@ -1,30 +1,23 @@
 var wallTexture;
 
-class Room {
-    obj = null;
-    width = 0;
-    height = 0;
-    depth = 0;
+class Room extends Element {
     enabled =  false;
-    toDispose = [];
     obstacles = [];
+    elements = [];
     connectionPoints = [4, 5, 6];
+    orientationPoints =  [7, 8, 9];
     constructor (obj, w, h, d) {
-        this.obj = obj;
-        this.width = w;
-        this.height = h;
-        this.depth = d;
+        super(obj, w, h, d);
+        this.type = "Room";
     };
     getConnectionPoints () {
-        return getConnectionPoints(this.obj, this.connectionPoints[0], this.connectionPoints[1], this.connectionPoints[2]);
+        return getConnectionPoints(this.obj, this.connectionPoints);
     };
-    connect (objToCon) {
-        connect(this.obj, objToCon, this.depth);
+    getOrientationPoints () {
+        return getConnectionPoints(this.obj, this.orientationPoints)[0];
     };
-    dispose () {
-        for (var i = 0; i < this.toDispose.length; i++)
-            objDispose(this.obj.children[i]);
-        objDispose(this.obj);
+    connect (obj) {
+        connect(this.obj, obj, this.getOrientationPoints(), this.depth);
     };
     isIn (cat) {
         //const backC = cat.obj.position.z + cat.depth / 2;
@@ -32,30 +25,60 @@ class Room {
         const backR = this.obj.position.z + this.depth / 2;
         const frontR = this.obj.position.z - this.depth / 2;
 
-        console.log("Il backR: ", backR, "\nIl frontC: ", frontC, "\nIl frontR: ", frontR);
         if (backR > frontC && frontR < frontC)
             return true;
         return false;
     };
-    populate () {
+    populate (memory) {
         var flagLightFlag = getRandomInt(3);
-        var tableFlag = getRandomInt(3);
+        var obsatcleFlag = getRandomInt(6);
         var cLight;
         var obstacle;
 
         if (flagLightFlag == 2) {
-            cLight = createCeilingLamp();
-            cLight.obj.position.y = 78.5;
-            cLight.obj.rotation.x = Math.PI / 2;
-            this.obj.add(cLight.obj);
-            this.toDispose.push(this.obj.children.length - 1);
+            cLight = takeElement(memory, "CeilingLight");
+            if (cLight) {  
+                cLight.obj.position.y = 78.5;
+                cLight.obj.rotation.x = Math.PI / 2;
+                cLight.available = false;
+                this.obj.add(cLight.obj);
+                this.toDispose.push(cLight);
+            }
         }
-        if (tableFlag == 2) {
-            obstacle = obstaclesCreate("table");
-            this.obj.add(obstacle.obj);
-            this.toDispose.push(this.obj.children.length - 1);
-            this.obstacles.push(obstacle);
+        if (obsatcleFlag == 2 || obsatcleFlag == 3) {
+            obstacle = takeElement(memory, "Table");
+            if (obstacle) {
+                obstacle.available = false;
+                this.obj.add(obstacle.obj);
+                this.toDispose.push(obstacle);
+                this.obstacles.push(obstacle);
+            }
         }
+        if (obsatcleFlag == 4) {
+            obstacle = takeElement(memory, "Turnstile");
+            if (obstacle) {
+                obstacle[0].available = false;
+                this.obj.add(obstacle[0].obj);
+                this.obj.add(obstacle[1].obj);
+                this.toDispose.push(obstacle[0]);
+                this.obstacles.push(obstacle[0]);
+                this.toDispose.push(obstacle[1]);
+                this.obstacles.push(obstacle[1]);
+            }
+        }
+    };
+    rePopulate (memory) {
+        this.empty();
+        this.populate(memory);
+    };
+    empty () {
+        for (var i = 0; i < this.toDispose.length; i++) {
+            this.toDispose[i].available = true;
+            this.obj.remove(this.toDispose[i].obj);
+        }
+        this.toDispose = [];
+        this.elements = [];
+        this.obstacles = [];
     };
 }
 
@@ -134,7 +157,7 @@ function createRoom(width, height, depth)
 
     const flagWindow = getRandomInt(2);
 
-    obj.add(createWallDx(width, height, depth, flagWindow));    //0
+    obj.add(createWallDx(width, height, depth, flagWindow));    //0 //penso che non venga eliminata
     obj.add(createWallSx(width, height, depth));                //1
     obj.add(createCeil(width, height, depth));                  //2
     obj.add(createFloor(width, depth));                         //3
@@ -150,6 +173,18 @@ function createRoom(width, height, depth)
     obj.add(cPoint1);                   //4
     obj.add(cPoint2);                   //5
     obj.add(cPoint3);                   //6
+
+    const oPoint1 = new THREE.Object3D();
+    const oPoint2 = new THREE.Object3D();
+    const oPoint3 = new THREE.Object3D();
+
+    oPoint1.position.set(1, 0, 0);
+    oPoint2.position.set(0, 0, 0);
+    oPoint3.position.set(0, 1, 0);
+
+    obj.add(oPoint1);                   //7
+    obj.add(oPoint2);                   //8
+    obj.add(oPoint3);                   //9
 
     const ret = new Room(obj, width, height, depth);
     return ret;

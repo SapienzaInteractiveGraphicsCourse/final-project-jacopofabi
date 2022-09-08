@@ -3,20 +3,20 @@ var catTexture = [];
 function loadCatTexture(loader) {
   catTexture = [
     new THREE.MeshPhongMaterial({
-      map: loader.load("cat/texture/lateralBody.png"),
+      map: loader.load("element/cat/texture/lateralBody.png"),
     }),
     new THREE.MeshPhongMaterial({
-      map: loader.load("cat/texture/frontFace.png"),
+      map: loader.load("element/cat/texture/frontFace.png"),
     }),
     new THREE.MeshPhongMaterial({
-      map: loader.load("cat/texture/lateralFace.png"),
+      map: loader.load("element/cat/texture/lateralFace.png"),
     }),
     new THREE.MeshPhongMaterial({
-      map: loader.load("cat/texture/lateralFace2.png"),
+      map: loader.load("element/cat/texture/lateralFace2.png"),
     }),
-    new THREE.MeshPhongMaterial({ map: loader.load("cat/texture/eye.png") }),
-    new THREE.MeshPhongMaterial({ map: loader.load("cat/texture/nose.png") }),
-    new THREE.MeshPhongMaterial({ map: loader.load("cat/texture/ear.png") }),
+    new THREE.MeshPhongMaterial({ map: loader.load("element/cat/texture/eye.png") }),
+    new THREE.MeshPhongMaterial({ map: loader.load("element/cat/texture/nose.png") }),
+    new THREE.MeshPhongMaterial({ map: loader.load("element/cat/texture/ear.png") }),
   ];
 }
 
@@ -131,7 +131,6 @@ function createEar(earW, earH, earD, texture) {
   geometry.setIndex([0, 4, 5, 4, 3, 2, 2, 5, 4, 3, 1, 2, 5, 2, 1, 0, 5, 1]);
   const topMaterial = new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" });
   const topMesh = new THREE.Mesh(geometry, topMaterial);
-  console.log(topMesh);
   topMesh.scale.z = 2;
   topMesh.position.y = 0.75;
   base.add(topMesh);

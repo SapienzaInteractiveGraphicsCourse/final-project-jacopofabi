@@ -32,6 +32,12 @@ function main() {
   const scene = new THREE.Scene(); 
   scene.background = new THREE.Color("rgb(255, 255, 255)");
 
+  var memory = {
+    obstacleA: [],
+    decorationA: [],
+    roomA: [],
+  }
+
   var mainScene = {
     scene: scene,
     cat: null,
@@ -40,6 +46,7 @@ function main() {
     ambientSpeed: 100,
     pause: false,
     room: null,
+    lastObj: [],
     elementsA: [],
     wallsA: [],
     obstaclesA: [],
@@ -81,7 +88,8 @@ function main() {
     cat.mixers.forEach((mixer) => {
       mainScene.mixers.push(mixer);
     });
-    createWay(mainScene);
+    createAllObject(mainScene, memory.roomA, memory.obstacleA, memory.decorationA);
+    createWay(mainScene, memory);
   };
 
   setControl(document, window, renderer, mainScene);
@@ -106,12 +114,21 @@ function main() {
         mainScene.catspeed -= 5.0;
       else if (mainScene.catspeed < 0.0)
         mainScene.catspeed += 5.0;
-      updateScene(mainScene, delta);
+      updateScene(mainScene, memory, delta);
       mainScene.room = checkIn(mainScene.cat, mainScene.elementsA, mainScene.wallsA);
+      if (mainScene.room == null) {
+        mainScene.pause = true;
+        console.log(mainScene.wallsA);
+        mainScene.wallsA.forEach(elem => {
+          console.log(elem.obj.position.z);
+        })
+        console.log("non siamo in una stanza");
+      }
+      if (mainScene.room) {
+        checkAnimation(mainScene.room.obstacles, mainScene.cat, mainScene.tweenGA);
+      }
       if (mainScene.room && checkIntersection(mainScene.room.obstacles, mainScene.cat))
         mainScene.pause = true;
-      mainScene.pause = true;
-      console.log("La room in cui è dentro:", mainScene.room);
     }
     renderer.render(scene, camera);
   }

@@ -1,4 +1,31 @@
 
+class Table extends Element {
+    intersectionLimit = [];
+    constructor (obj, width, height, depth, intersectionLimit) {
+        super(obj, width, height, depth)
+        this.intersectionLimit = intersectionLimit;
+        this.type = "Table";
+    };
+    dispose () {
+        objDispose(this.obj);
+    };
+    checkIntersection (cat) {
+
+        const pT = new THREE.Vector3();
+        const pCC = new THREE.Vector3();
+
+        this.obj.getWorldPosition(pT);
+        cat.center.getWorldPosition(pCC);
+
+        const limitPositionD = pT.y + this.intersectionLimit[0];
+        const limitPositionU = pT.y + this.intersectionLimit[1];
+
+        if (pCC.y + (cat.height / 2) >= limitPositionU && pCC.y - (cat.height / 2) <= limitPositionD)
+            return true;
+        return false;
+    }
+}
+
 function intersectionTable(table, cat)
 {
     const limitPositionD = table.obj.position.y + table.intersectionLimit[0];
@@ -45,35 +72,7 @@ function createTable()
 
     obj.add(top1);
 
-    const table = {
-        obj: obj,
-        width: top1W,
-        height: legH + top1H + top2H,
-        depth: top2D,
-        intersectionLimit: [(legH - top1H - top2H) / 2, (legH + top1H + top2H) / 2],
-        type: "table",
-        dispose: function () {
-            objDispose(this.obj);
-        },
-        checkIntersection: function (cat) {
-            const pT = new THREE.Vector3();
-            const pC = new THREE.Vector3();
-            const pCC = new THREE.Vector3();
-
-            this.obj.getWorldPosition(pT);
-            cat.obj.getWorldPosition(pC);
-            cat.center.getWorldPosition(pCC);
-
-            const limitPositionD = pT.y + table.intersectionLimit[0];
-            const limitPositionU = pT.y + table.intersectionLimit[1];
-
-            console.log("Le misure: ", pT, "pc: ", pC, "pcc: ", pCC);
-
-            if (pC.y + pCC.y + (cat.height / 2) >= limitPositionU && pC.y + pCC.y - (cat.height / 2) <= limitPositionD)
-                return true;
-            return false;
-        }
-    };
+    const table = new Table(obj, top1W, legH + top1H + top2H, top2D, [(legH - top1H - top2H) / 2, (legH + top1H + top2H) / 2]);
 
     return (table);
 }

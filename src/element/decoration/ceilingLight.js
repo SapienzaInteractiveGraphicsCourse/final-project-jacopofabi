@@ -1,3 +1,10 @@
+class DecorationLight extends Element {
+  constructor (obj) {
+    super(obj, 0, 0, 0);
+    this.type = "CeilingLight";
+  };
+}
+
 function createCeilingLamp(width, height, deep)
 {
     const obj = new THREE.Object3D();
@@ -59,12 +66,7 @@ function createCeilingLamp(width, height, deep)
     obj.add(spotLight);
     obj.add(target);
 
-    const ret = {
-      obj: obj,
-      dispose: function() {
-        objDispose(this.obj);
-      },
-    }
+    const ret = new DecorationLight(obj);
 
     return ret;
 }

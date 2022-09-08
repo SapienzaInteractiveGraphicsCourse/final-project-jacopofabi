@@ -11,7 +11,7 @@ function rotationCamera(mainScene, angle) {
         mainScene.pause = false;
         for (var i = 0; i < mainScene.tweenGA.length; i++) {
             if (mainScene.tweenGA[i] == group)
-                mainScene.tweenGA.slice(i, 1);
+                mainScene.tweenGA.splice(i, 1);
         }
         group.removeAll();
     });
@@ -34,12 +34,12 @@ function onKeyPress(key, mainScene) {
         mainScene.catspeed = 50;
     }
     else if (key == "t") {
-        if (mainScene.room && mainScene.room.enabled) {
+        if (mainScene.room && mainScene.room.enabled && mainScene.room.canRotate(mainScene.cat)) {
             rotationCamera(mainScene, -Math.PI / 2);
         }
     }
     else if (key == "y") {
-        if (mainScene.room && mainScene.room.enabled) {
+        if (mainScene.room && mainScene.room.enabled && mainScene.room.canRotate(mainScene.cat)) {
             rotationCamera(mainScene, Math.PI / 2);
         }
     }

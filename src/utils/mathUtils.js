@@ -37,6 +37,18 @@ function vectProd(vec1, vec2) {
     return ret;
 }
 
+function takeNormal(p1, p2, p3) {
+    const vec1 = sub(p1, p2);
+    const vec2 = sub(p3, p2);
+    const normal = vectProd(vec1, vec2);
+    var normalized = normalize(normal);
+    normalized[0] = Math.round(normalized[0]);
+    normalized[1] = Math.round(normalized[1]);
+    normalized[2] = Math.round(normalized[2]);
+
+    return normalized;
+}
+
 function normalize(vec) {
 
     const ret = [];

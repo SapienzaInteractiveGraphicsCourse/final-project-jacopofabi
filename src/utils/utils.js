@@ -19,6 +19,17 @@ function disposeFromArray(scene, obj, array) {
     }
 }
 
+function removeFromArray(scene, obj, array) {
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] == obj) {
+          array.splice(i, 1);
+          scene.remove(obj.obj);
+          obj.available = true;
+          break ;
+        }
+    } 
+}
+
 function objDispose(obj) {
     obj.children.forEach((child) => {
         if (child.geometry != null)  //probabile che si possa levare
@@ -33,8 +44,6 @@ function newScale(obj, scale) {
     obj.width *= scale[0];
     obj.height *= scale[1];
     obj.depth *= scale[2];
-    obj.intersectionLimit[0] *= scale[1];
-    obj.intersectionLimit[1] *= scale[1];
 }
 
 function createCube(width, height, depth, material) {

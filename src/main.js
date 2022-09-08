@@ -36,7 +36,7 @@ function main() {
   const mixers = [];
   const clock = new THREE.Clock();
 
-  const loadManager = new THREE.LoadingManager();
+  /*const loadManager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(loadManager);
 
   loadCatTexture(loader);
@@ -49,15 +49,14 @@ function main() {
       mixers.push(mixer);
     });
     cat.playAnimation("slip", false);
-  };
+  };*/
 
   //var obj = createCeilingLamp(5, 5, 2);
   //var obj = createWindow(10, 20, 1, 1);
-  var obj = createTransitionRoom();
-  obj.scale.set(0.2, 0.2, 0.2);
-  scene.add(obj);
+  var obj = createTurnstile();
+  scene.add(obj.obj);
 
-  console.log(obj.position);
+  console.log(obj.obj.position);
 
   function render() {
     const delta = clock.getDelta();
@@ -65,14 +64,14 @@ function main() {
       mixer.update(delta);
     });
 
-    obj.rotation.x = mainScene.deltaX * THREE.MathUtils.DEG2RAD;
-    obj.rotation.y = mainScene.deltaY * THREE.MathUtils.DEG2RAD;
-    obj.rotation.z = mainScene.deltaZ * THREE.MathUtils.DEG2RAD;
+    obj.obj.rotation.x = mainScene.deltaX * THREE.MathUtils.DEG2RAD;
+    obj.obj.rotation.y = mainScene.deltaY * THREE.MathUtils.DEG2RAD;
+    obj.obj.rotation.z = mainScene.deltaZ * THREE.MathUtils.DEG2RAD;
   
     if (mainScene.cat != null) {
-      mainScene.cat.obj.rotation.x = mainScene.deltaX * THREE.MathUtils.DEG2RAD;
-      mainScene.cat.obj.rotation.y = mainScene.deltaY * THREE.MathUtils.DEG2RAD;
-      mainScene.cat.obj.rotation.z = mainScene.deltaZ * THREE.MathUtils.DEG2RAD;
+      mainScene.cat.obj.obj.rotation.x = mainScene.deltaX * THREE.MathUtils.DEG2RAD;
+      mainScene.cat.obj.obj.rotation.y = mainScene.deltaY * THREE.MathUtils.DEG2RAD;
+      mainScene.cat.obj.obj.rotation.z = mainScene.deltaZ * THREE.MathUtils.DEG2RAD;
     }
 
     //table.rotation.x = mainScene.deltaX * THREE.MathUtils.DEG2RAD;

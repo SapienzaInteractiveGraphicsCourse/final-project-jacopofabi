@@ -1,178 +1,154 @@
-var wallTexture;
 
-class Room extends Element {
-    enabled =  false;
+var roomTexture;
+
+var widthWall = 80;
+var heightWall = 80;
+var depthWall = 120;
+var widthWindow = 25;
+var heightWindow = 50;
+var depthWindow = 2;
+var shiftWindow = 1.5;
+
+/*MESH MATRIX
+    0 Right Wall
+    1 Left Wall
+    2 Floor
+    3 Ceil
+*/
+const geometryM = [];
+const materialM = [];
+
+class Room extends Block {
     obstacles = [];
-    elements = [];
-    connectionPoints = [4, 5, 6];
-    orientationPoints =  [7, 8, 9];
-    constructor (obj, w, h, d) {
+    interface;
+    constructor (obj, w, h, d, a) {
         super(obj, w, h, d);
         this.type = "Room";
+        this.interface = a;
     };
-    getConnectionPoints () {
-        return getConnectionPoints(this.obj, this.connectionPoints);
-    };
-    getOrientationPoints () {
-        return getConnectionPoints(this.obj, this.orientationPoints)[0];
-    };
-    connect (obj) {
-        connect(this.obj, obj, this.getOrientationPoints(), this.depth);
-    };
-    isIn (cat) {
-        //const backC = cat.obj.position.z + cat.depth / 2;
-        const frontC = cat.obj.position.z - cat.depth / 2;
-        const backR = this.obj.position.z + this.depth / 2;
-        const frontR = this.obj.position.z - this.depth / 2;
-
-        if (backR > frontC && frontR < frontC)
-            return true;
-        return false;
-    };
-    populate (memory) {
+    populate (countSpawn, spawn, probability) {
         var flagLightFlag = getRandomInt(3);
-        var obsatcleFlag = getRandomInt(6);
-        var cLight;
-        var obstacle;
+        var obstacleFlag = getRandomInt(4 + Math.floor(probability / 2));
 
-        if (flagLightFlag == 2) {
-            cLight = takeElement(memory, "CeilingLight");
-            if (cLight) {  
-                cLight.obj.position.y = 78.5;
-                cLight.obj.rotation.x = Math.PI / 2;
-                cLight.available = false;
-                this.obj.add(cLight.obj);
-                this.toDispose.push(cLight);
+        if (countSpawn == spawn) {
+            if ((obstacleFlag == 0 || obstacleFlag == 1 || obstacleFlag == 2)) {
+                this.obj.children[11].visible = true;
+                this.obstacles.push(this.interface[0]);
+                if (obstacleFlag == 1) {
+                    this.obj.children[12].visible = true;
+                    this.obstacles.push(this.interface[1]);
+                }
+                if (obstacleFlag == 2) {
+                    this.obj.children[13].visible = true;
+                    this.obstacles.push(this.interface[2]);
+                }
+                return [Math.floor(flagLightFlag / 2), obstacleFlag];
+            }
+            else if (obstacleFlag == 3) {
+                this.obj.children[14].visible = true;
+                this.obj.children[15].visible = true;
+                this.obstacles.push(this.interface[3]);
+                this.obstacles.push(this.interface[4]);
+                return [Math.floor(flagLightFlag / 2), obstacleFlag];
             }
         }
-        if (obsatcleFlag == 2 || obsatcleFlag == 3) {
-            obstacle = takeElement(memory, "Table");
-            if (obstacle) {
-                obstacle.available = false;
-                this.obj.add(obstacle.obj);
-                this.toDispose.push(obstacle);
-                this.obstacles.push(obstacle);
-            }
-        }
-        if (obsatcleFlag == 4) {
-            obstacle = takeElement(memory, "Turnstile");
-            if (obstacle) {
-                obstacle[0].available = false;
-                this.obj.add(obstacle[0].obj);
-                this.obj.add(obstacle[1].obj);
-                this.toDispose.push(obstacle[0]);
-                this.obstacles.push(obstacle[0]);
-                this.toDispose.push(obstacle[1]);
-                this.obstacles.push(obstacle[1]);
-            }
-        }
-    };
-    rePopulate (memory) {
-        this.empty();
-        this.populate(memory);
+        return [flagLightFlag, 0];
     };
     empty () {
-        for (var i = 0; i < this.toDispose.length; i++) {
-            this.toDispose[i].available = true;
-            this.obj.remove(this.toDispose[i].obj);
+        if (this.interface[3].enabled) {
+            this.interface[3].rotation1.rotation.y = 0;
+            this.interface[3].rotation2.rotation.y = 0;
         }
-        this.toDispose = [];
-        this.elements = [];
+        else {
+            this.interface[4].rotation1.rotation.y = 0;
+            this.interface[4].rotation2.rotation.y = 0;
+        }
+        this.obj.children[11].visible = false;
+        this.obj.children[12].visible = false;
+        this.obj.children[13].visible = false;
+        this.obj.children[14].visible = false;
+        this.obj.children[15].visible = false;
         this.obstacles = [];
     };
 }
 
-function loadWallTexture(loader) {
-    const texture1 = loader.load("flow/texture/woodTexture.jpeg");
-    texture1.wrapS = THREE.RepeatWrapping;
-    texture1.wrapT = THREE.RepeatWrapping;
-    texture1.repeat.set(4, 6);
-    //texture1.offset.x = 0.6;
-    //texture1.repeat = new THREE.Vector2(20, 30);
-    wallTexture = [
-        texture1,
+ function loadRoomTexture(loader) {
+
+    const texture2 = loader.load("src/element/texture/wallTexture4.png");
+    const texture3 = loader.load("src/element/texture/wallTextureNormal3.png");
+    const texture4 = loader.load("src/element/texture/floorTexture.png");
+    const texture5 = loader.load("src/element/texture/floorNormal.png");
+    roomTexture = [
+        texture2,
+        texture3,
+        texture4,
+        texture5,
     ];
 }
 
-function createWallDx(width, height, depth, window) {
-    if (window)
-        var wallDx = createWallWindows(0xffffff);
-    else
-        var wallDx = createWall(
-            new THREE.MeshPhongMaterial({
-                color: 0xffffff,
-                side: THREE.DoubleSide,
-            }),
-          depth,
-          height);
-    //wallDx.name = "wallDx";
-    placeObj(wallDx, [width / 2, height / 2, 0], [0, - Math.PI / 2, 0]);
-
-    return wallDx;
+function createWallWindowDx(width, height) {
+    const mesh = createObjectWallWindows();
+    placeObj(mesh, [width / 2, height / 2, 0], [0, - Math.PI / 2, 0]);
+    return mesh;
 }
 
-function createWallSx(width, height, depth) {
-    const wallSx = createWall(
-        new THREE.MeshPhongMaterial({
-            color: 0xD7D7D7,
-            side: THREE.DoubleSide,
-        }),
-        depth,
-        height);
-    //wallSx.name = "wallSx";
-    placeObj(wallSx, [-(width / 2), height / 2, 0], [0, - Math.PI / 2, 0]);
-
-    return wallSx;
+function createWallDx(width, height, geometry, material) {
+    const mesh = new THREE.Mesh(geometry, material);
+    placeObj(mesh, [width / 2, height / 2, 0], [0, - Math.PI / 2, 0]);
+    return mesh;
 }
 
-function createFloor(width, depth) {
-    const floor = createWall(new THREE.MeshPhongMaterial({
-            color: 0x808080,
-            side: THREE.DoubleSide,
-        }),
-        width,
-        depth);
-    //floor.name = "floor";
-    placeObj(floor, [0, 0, 0], [- Math.PI / 2, 0, 0]);
-
-    return floor;
+function createWallSx(width, height, geometry, material) {
+    const mesh = new THREE.Mesh(geometry, material);
+    placeObj(mesh, [-(width / 2), height / 2, 0], [0, - Math.PI / 2, 0]);
+    mesh.scale.z = -1;
+    return mesh;
 }
 
-function createCeil(width, height, depth) {
-    const ceil = createWall(new THREE.MeshPhongMaterial({
-            map: wallTexture[0],
-            side: THREE.DoubleSide,
-        }),
-        width,
-        depth);
-    //ceil.name = "ceil";
-    placeObj(ceil, [0, height, 0], [- Math.PI / 2, 0, 0]);
-
-    return ceil;
+function createFloor(geometry, material) {
+    const mesh = new THREE.Mesh(geometry, material);
+    placeObj(mesh, [0, 0, 0], [- Math.PI / 2, 0, 0]);
+    return mesh;
 }
 
-function createRoom(width, height, depth)
-{
+function createCeil(height, geometry, material) {
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.scale.z = -1;
+    placeObj(mesh, [0, height, 0], [- Math.PI / 2, 0, 0]);
+    return mesh;
+}
+
+function createObjectRoom() {
     const obj = new THREE.Object3D();
 
-    const flagWindow = getRandomInt(2);
+    const flag = getRandomInt(2);
 
-    obj.add(createWallDx(width, height, depth, flagWindow));    //0 //penso che non venga eliminata
-    obj.add(createWallSx(width, height, depth));                //1
-    obj.add(createCeil(width, height, depth));                  //2
-    obj.add(createFloor(width, depth));                         //3
+    const wallWindow = createObjectWallWindows();
+    wallWindow.rotateY(-Math.PI / 2);
+    wallWindow.position.x = widthWall / 2;
+    wallWindow.position.y = heightWall / 2;
+    obj.add(wallWindow);                                                        //0
+    obj.add(createWallDx(widthWall, heightWall, geometryM[0], materialM[0]));   //1
+    obj.add(createWallSx(widthWall, heightWall, geometryM[0], materialM[1]));   //2
+    obj.add(createFloor(geometryM[1], materialM[2]));                           //3
+    obj.add(createCeil(heightWall, geometryM[1], materialM[3]));                //4
+
+    if (flag == 0)
+        obj.children[0].visible = false;
+    else
+        obj.children[1].visible = false;
 
     const cPoint1 = new THREE.Object3D();
     const cPoint2 = new THREE.Object3D();
     const cPoint3 = new THREE.Object3D();
 
-    cPoint1.position.set(-width / 2, 0, -depth / 2);
-    cPoint2.position.set(0, 0, -depth / 2);
-    cPoint3.position.set(0, height, -depth / 2);
+    cPoint1.position.set(-widthWall / 2, 0, -depthWall / 2);
+    cPoint2.position.set(0, 0, -depthWall / 2);
+    cPoint3.position.set(0, heightWall, -depthWall / 2);
 
-    obj.add(cPoint1);                   //4
-    obj.add(cPoint2);                   //5
-    obj.add(cPoint3);                   //6
+    obj.add(cPoint1);                   //5
+    obj.add(cPoint2);                   //6
+    obj.add(cPoint3);                   //7
 
     const oPoint1 = new THREE.Object3D();
     const oPoint2 = new THREE.Object3D();
@@ -182,10 +158,75 @@ function createRoom(width, height, depth)
     oPoint2.position.set(0, 0, 0);
     oPoint3.position.set(0, 1, 0);
 
-    obj.add(oPoint1);                   //7
-    obj.add(oPoint2);                   //8
-    obj.add(oPoint3);                   //9
+    obj.add(oPoint1);                   //8
+    obj.add(oPoint2);                   //9
+    obj.add(oPoint3);                   //10
 
-    const ret = new Room(obj, width, height, depth);
+    const table = obstaclesCreate("Table");
+    obj.add(table.obj);                 //11
+    table.obj.visible = false;
+
+    const bar = obstaclesCreate("Bar");
+    obj.add(bar.obj);                   //12
+    bar.obj.position = table.obj.position;
+    bar.obj.position.y += table.height / 2;
+    bar.obj.visible = false;
+
+    const computer = obstaclesCreate("Computer");
+    obj.add(computer.obj);              //13
+    computer.obj.position.y = table.obj.position.y + table.height / 2 + computer.height / 2;
+    computer.obj.position.z = computer.depth / 2;
+    computer.obj.visible = false;
+
+    const turnstile = obstaclesCreate("Turnstile");
+    obj.add(turnstile[0].obj);          //14
+    obj.add(turnstile[1].obj);          //15
+    turnstile[0].obj.visible = false;
+    turnstile[1].obj.visible = false;
+
+    const ret = new Room(obj, widthWall, heightWall, depthWall, [table, bar, computer, turnstile[0], turnstile[1]]);
     return ret;
+}
+
+ function createGeoMatRoom(wW = widthWall, hW = heightWall, dW = depthWall, wWind = widthWindow, hWind = heightWindow, dWind = depthWindow, s = shiftWindow) {
+
+    widthWall = wW;
+    heightWall = hW;
+    depthWall = dW;
+    widthWindow = wWind;
+    heightWindow = hWind;
+    depthWindow = dWind;
+    shiftWindow = s;
+
+    const geometryWallRL = new THREE.PlaneGeometry(dW, hW);
+    const geometryWallUpDown = new THREE.PlaneGeometry(wW, dW);
+
+    geometryM.length = 0;
+    geometryM.push(geometryWallRL);
+    geometryM.push(geometryWallUpDown);
+
+    if (materialM.length == 0) {
+        const materialWallR = new THREE.MeshPhongMaterial({
+            color: 'white',
+            side: THREE.DoubleSide,
+        });
+        const materialWallL = new THREE.MeshPhongMaterial({
+            map: roomTexture[0],
+            normalMap: roomTexture[1],
+        });
+        const materialWallF = new THREE.MeshPhongMaterial({
+            map: roomTexture[2],
+            normalMap: roomTexture[3],
+        });
+        const materialWallC = new THREE.MeshPhongMaterial({
+            color: 'white',
+        });
+
+        materialM.push(materialWallR);
+        materialM.push(materialWallL);
+        materialM.push(materialWallF);
+        materialM.push(materialWallC);
+    }
+
+    createGeoMatWallWindows(wWind, hWind, dWind, s);
 }

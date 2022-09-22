@@ -1,11 +1,12 @@
 
+
 function rotationCamera(mainScene, angle) {
     mainScene.pause = true;
     mainScene.room.enabled = false;
     const group = new TWEEN.Group();
-    createRotationAnimationTween(mainScene.wallsA, mainScene.room.obj, group, angle);
-    createRotationAnimationTween(mainScene.elementsA, mainScene.room.obj, group, angle);
-    createRotationAnimationTween(mainScene.obstaclesA, mainScene.room.obj, group, angle);
+    createAnimationTransitionRoomTween(mainScene.wallsA, mainScene.room.obj, group, angle);
+    createAnimationTransitionRoomTween(mainScene.elementsA, mainScene.room.obj, group, angle);
+    createAnimationTransitionRoomTween(mainScene.obstaclesA, mainScene.room.obj, group, angle);
     mainScene.room = null;
     const tween = new TWEEN.Tween(mainScene, group).onComplete(function () {
         mainScene.pause = false;
@@ -27,26 +28,35 @@ function onWindowResize(camera, window, renderer) {
 }
 
 function onKeyPress(key, mainScene) {
+    if (mainScene.start != 2)
+        return ; 
     if (key == "a" && mainScene.cat != null) {
         mainScene.catspeed = -50;
       }
     else if (key == "d" && mainScene.cat != null) {
         mainScene.catspeed = 50;
     }
-    else if (key == "t") {
+    else if (key == "o") {
         if (mainScene.room && mainScene.room.enabled && mainScene.room.canRotate(mainScene.cat)) {
             rotationCamera(mainScene, -Math.PI / 2);
         }
     }
-    else if (key == "y") {
+    else if (key == "p") {
         if (mainScene.room && mainScene.room.enabled && mainScene.room.canRotate(mainScene.cat)) {
             rotationCamera(mainScene, Math.PI / 2);
         }
     }
-    else if (key == "p") {
-        console.log(key);
-        if (mainScene.pause == true) mainScene.pause = false;
-        else mainScene.pause = true;
+    else if (key == " ") {
+        if (mainScene.pause == true && mainScene.died == false) {
+            const elem = document.getElementById("pressStart");
+            elem.style.visibility = "hidden";
+            mainScene.pause = false;
+        }
+        else if (mainScene.died == false) {
+            const elem = document.getElementById("pressStart");
+            elem.style.visibility = "visible";
+            mainScene.pause = true;
+        }
     }
     else if (key == "w" && mainScene.cat != null) {
         mainScene.cat.playAnimation("jump", false);
@@ -55,6 +65,7 @@ function onKeyPress(key, mainScene) {
         mainScene.cat.playAnimation("slip", false);
     }
 }
+
 
 function setControl(document, window, renderer, scene)
 {

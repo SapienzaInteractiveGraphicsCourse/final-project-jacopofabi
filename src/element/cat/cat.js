@@ -1,32 +1,43 @@
+
 var catTexture = [];
 
-function loadCatTexture(loader) {
+ function loadCatTexture(loader) {
   catTexture = [
     new THREE.MeshPhongMaterial({
-      map: loader.load("element/cat/texture/lateralBody.png"),
+      map: loader.load("src/element/cat/texture/lateralBody.png"),
     }),
     new THREE.MeshPhongMaterial({
-      map: loader.load("element/cat/texture/frontFace.png"),
+      map: loader.load("src/element/cat/texture/frontFace.png"),
     }),
     new THREE.MeshPhongMaterial({
-      map: loader.load("element/cat/texture/lateralFace.png"),
+      map: loader.load("src/element/cat/texture/lateralFace.png"),
     }),
     new THREE.MeshPhongMaterial({
-      map: loader.load("element/cat/texture/lateralFace2.png"),
+      map: loader.load("src/element/cat/texture/lateralFace2.png"),
     }),
-    new THREE.MeshPhongMaterial({ map: loader.load("element/cat/texture/eye.png") }),
-    new THREE.MeshPhongMaterial({ map: loader.load("element/cat/texture/nose.png") }),
-    new THREE.MeshPhongMaterial({ map: loader.load("element/cat/texture/ear.png") }),
+    new THREE.MeshPhongMaterial({ map: loader.load("src/element/cat/texture/eye.png") }),
+    new THREE.MeshPhongMaterial({ map: loader.load("src/element/cat/texture/nose.png") }),
+    new THREE.MeshPhongMaterial({ map: loader.load("src/element/cat/texture/ear.png") }),
   ];
+}
+
+ function setRayCaster(cat, rayCaster) {
+  const vector = new THREE.Vector3();
+
+  vector.x = cat.obj.position.x;
+  vector.y = cat.obj.position.y + cat.height / 2 - 0.5;
+  vector.z = cat.obj.position.z + cat.depth / 2;
+
+  rayCaster.set(vector, new THREE.Vector3(0, 0, -1));
 }
 
 function createBodyMaterial(texture) {
   const cubeMaterial = [
     texture,
     texture,
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
     texture,
   ];
   return cubeMaterial;
@@ -36,7 +47,7 @@ function createTailMaterial(texture) {
   const cubeMaterial = [
     texture,
     texture,
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
     new THREE.MeshPhongMaterial({ color: "white" }),
     texture,
     texture,
@@ -48,10 +59,10 @@ function createHeadMaterial(textureFront, textureLateral, textureLateral2) {
   const cubeMaterial = [
     textureLateral,
     textureLateral2,
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
     textureFront,
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
   ];
   return cubeMaterial;
 }
@@ -70,24 +81,24 @@ function createEyeMaterial(texture) {
 
 function createNoseMaterial(texture) {
   const cubeMaterial = [
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
     texture,
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
   ];
   return cubeMaterial;
 }
 
 function createEar(earW, earH, earD, texture) {
   const cubeMaterial = [
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
     texture,
-    new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" }),
+    new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" }),
   ];
   const base = createCube(1, 1, 1, cubeMaterial);
 
@@ -129,7 +140,7 @@ function createEar(earW, earH, earD, texture) {
     new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents)
   );
   geometry.setIndex([0, 4, 5, 4, 3, 2, 2, 5, 4, 3, 1, 2, 5, 2, 1, 0, 5, 1]);
-  const topMaterial = new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" });
+  const topMaterial = new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" });
   const topMesh = new THREE.Mesh(geometry, topMaterial);
   topMesh.scale.z = 2;
   topMesh.position.y = 0.75;
@@ -147,7 +158,7 @@ function createTail(width, height, depth, texture) {
   return tailMesh;
 }
 
-function createCat() {
+ function createCat() {
   var headW = 10;
   var headH = 8;
   var headD = 8;
@@ -241,7 +252,7 @@ function createCat() {
         legW,
         legH,
         legD,
-        new THREE.MeshPhongMaterial({ color: "rgb(40, 40, 40)" })
+        new THREE.MeshPhongMaterial({ color: "rgb(0, 0, 0)" })
       )
     );
     foots.push(
@@ -310,7 +321,7 @@ function createCat() {
     playAnimation: function (anim, loop, restart = false) {
       if (
         actions[anim][0].time == 0 ||
-        actions[anim][0].time == 1 ||
+        actions[anim][0].time > 0.6 ||
         restart == true
       ) {
         if (loop == true) {
@@ -324,9 +335,33 @@ function createCat() {
         }
       }
     },
-    stopAnimation: function () {
-      actions[anim].stop();
+    stopAnimation: function (anim) {
+      actions[anim].forEach((action) => {
+        action.stop();
+      });
     },
+    checkIntersection: function (obstacle) {
+      const box3Obs = new THREE.Box3();
+      const box3Cat = new THREE.Box3();
+      for (var i = 0; i < obstacle.intersectionMesh.length; i++) {
+        var obs = obstacle.obj;
+        for (var j = 0; j < obstacle.intersectionMesh[i].length; j++) {
+          obs = obs.children[obstacle.intersectionMesh[i][j]];
+        }
+        obs.geometry.computeBoundingBox();
+        this.head.geometry.computeBoundingBox();
+
+        const vector = new THREE.Vector3();
+        this.head.getWorldPosition(vector);
+        box3Obs.copy( obs.geometry.boundingBox ).applyMatrix4( obs.matrixWorld );
+        box3Cat.copy( this.head.geometry.boundingBox ).applyMatrix4( this.head.matrixWorld );
+
+        box3Cat.intersect(box3Obs);
+        if (!box3Cat.isEmpty())
+          return true;
+      }
+      return false;
+    }
   };
 
   createJumpAnimation(ret, mixers, actions);

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <title>Cat Run</title>
+        <style>
+            body {
+                -webkit-touch-callout: none; /* iOS Safari */
+                -webkit-user-select: none; /* Safari */
+                -khtml-user-select: none; /* Konqueror HTML */
+                -moz-user-select: none; /* Old versions of Firefox */
+                -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+                margin: 0px;
+                background-color: #807182;
+                font-family: 'trebuchet MS';
+                color: aquamarine;
+            }
+            .container {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                height: 580px;
+                width: 400px;
+                padding: 20px;
+            }
+            .titleContainer {
+                width: 100%;
+                height: 40%;
+            }
+            .title {
+                position: relative;
+                font-size: 80px;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+            .separator {
+                width: 100%;
+                height: 30%;
+            }
+            .buttonContainer {
+                width: 100%;
+                height: 30%;
+            }
+            .button {
+                position: relative;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 80px;
+            }
+            button {
+                background-color: aquamarine;
+                color: #807182;
+                font-size: 20px;
+                height: 80px;
+                width: 80px;
+                border-style: solid;
+                border-radius: 50%;
+                border-width: 2px;
+                border-color: antiquewhite;
+                transition-duration: 0.2s;
+            }
+            button:hover {
+                background-color: #807182;
+                color: aquamarine;
+            }
+            #menu {
+                visibility: hidden;
+            }
+            .page {
+                position: absolute;
+                background-color: rgba(0, 0, 0, 0.592);
+                width: 100%;
+                height: 100vh;
+            }
+            .score {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                font-size: 40px;
+                visibility: hidden;
+            }
+            #pressStart {
+                visibility: hidden;
+                font-size: 35px;
+            }
+            .command {
+                position: absolute;
+                right: 20px;
+                bottom: 20px;
+                font-size: 16px;
+            }
+        </style>
+        <body>
+            <div class="score" id="score">Score</div>
+            <div class="page" id="menu">
+                <div class="container" style="width: 600px;">
+                    <div class="titleContainer" id="text" >
+                        <div class="title">
+                            GAME OVER
+                        </div>
+                    </div>
+                    <div class="separator"></div>
+                    <div class="buttonContainer">
+                        <div class="button" style="height: 100px; width: 100px;">
+                            <button id="restart">Restart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container" id="pressStart" style="height: 100px; width: 600px;">
+                <div class="titleContainer">
+                    <div class="title">
+                        Press Space
+                    </div>
+                </div>
+            </div>
+            <div class="container" id="page">
+                <div class="titleContainer">
+                    <div class="title">
+                        CatRun
+                    </div>
+                </div>
+                <div class="separator"></div>
+                <div class="buttonContainer">
+                    <div class="button">
+                        <button id="start">Start</button>
+                    </div>
+                </div>
+            </div>
+            <div class="command">
+                <div style="width: 100%;">
+                    o <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
+                      </svg>
+                </div>
+                <div> p  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                        </svg>
+                </div>
+                <div> w <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/>
+                        </svg>
+                </div>
+                <div> s <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
+                        </svg>
+                </div>
+                <div> a <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                        </svg>
+                </div>
+                <div> d <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                        </svg>
+                </div>
+            </div>
+        </body>
+        <script src='/node_modules/three/build/three.js'></script>
+        <script src="./src/element/element.js"></script>
+        <script src="./src/element/cat/animation.js"></script>
+        <script src="./src/element/cat/cat.js""></script>
+        <script src="./src/element/decoration/ceilingLight.js"></script>
+        <script src="./src/element/obstacles/bar.js"></script>
+        <script src="./src/element/obstacles/computer.js"></script>
+        <script src="./src/element/obstacles/obstacles.js"></script>
+        <script src="./src/element/obstacles/table.js"></script>
+        <script src="./src/element/obstacles/turnstile.js"></script>
+        <script src="./src/element/room/room.js"></script>
+        <script src="./src/element/room/transitionRoom.js"></script>
+        <script src="./src/element/room/wallWindow.js"></script>
+        <script src="./src/element/room/windows.js"></script>
+        <script src="./src/flow/animation.js"></script>
+        <script src="./src/flow/check.js"></script>
+        <script src="./src/flow/controlGame.js"></script>
+        <script src="./src/flow/manager.js"></script>
+        <script src="./src/flow/update.js"></script>
+        <script src="./src/utils/mathUtils.js"></script>
+        <script src="./src/utils/utils.js"></script>
+        <script src="tween.umd.js"></script>
+        <script src="./src/game.js"></script>
+        <script src="./src/catScene.js"></script>
+    </head>
+</html>

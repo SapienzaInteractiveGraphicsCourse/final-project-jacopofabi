@@ -1,26 +1,35 @@
-function obstaclesCreate(type) {
+
+ function obstaclesCreate(type) {
   var obstacle;
 
   if (type == "Table")
   {
-    obstacle = createTable();
-    newScale(obstacle, [9, 3, 7]);
-    obstacle.intersectionLimit[0] *= 3;
-    obstacle.intersectionLimit[1] *= 3;
+    obstacle = createObjectTable();
+    newScale(obstacle, [5, 2.5, 5]);
     obstacle.obj.position.y += obstacle.height / 2;
   }
-  if (type == "Turnstile") {
+  else if (type == "Turnstile") {
     const randomInt = getRandomInt(2);
     obstacle = [];
     var obstacle1 = createTurnstile(randomInt == 0);
     var obstacle2 = createTurnstile(randomInt == 1);
-    newScale(obstacle1, [2, 2, 2]);
-    newScale(obstacle2, [2, 2, 2]);
+    newScale(obstacle1, [1.8, 2, 2]);
+    newScale(obstacle2, [1.8, 2, 2]);
     obstacle1.obj.position.x = -obstacle1.width / 2;
-    obstacle1.obj.position.y += obstacle1.height;
+    obstacle1.obj.position.y = obstacle1.height / 2;
     obstacle2.obj.position.x = obstacle2.width / 2;
-    obstacle2.obj.position.y += obstacle2.height;
+    obstacle2.obj.position.y = obstacle2.height / 2;
     obstacle.push(obstacle1, obstacle2);
+  }
+  else if (type == "Computer") {
+    obstacle = createComputer();
+    newScale(obstacle, [3.5, 3.5, 4.0]);
+    obstacle.obj.rotation.x = -Math.PI / 2;
+    obstacle.obj.position.y += obstacle.height / 2;
+  }
+  else if (type == "Bar") {
+    obstacle = createObjectBar();
+    newScale(obstacle, [5, 2.5, 5]);
   }
   return obstacle;
 }

@@ -1,3 +1,4 @@
+
 function sub(mat1, mat2)
 {
     const ret = [];
@@ -22,7 +23,7 @@ function vectProdVec(vec1, vec2) {
     return ret;
 }
 
-function vectProd(vec1, vec2) {
+ function vectProd(vec1, vec2) {
 
     const ret = [];
 
@@ -37,7 +38,7 @@ function vectProd(vec1, vec2) {
     return ret;
 }
 
-function takeNormal(p1, p2, p3) {
+ function takeNormal(p1, p2, p3) {
     const vec1 = sub(p1, p2);
     const vec2 = sub(p3, p2);
     const normal = vectProd(vec1, vec2);
@@ -65,7 +66,7 @@ function normalize(vec) {
     return ret;
 }
 
-function dot(vec1, vec2) {
+ function dot(vec1, vec2) {
     if (vec1.length != 3 || vec2.length != 3)
         console.error("Lenght different from 3");
     else

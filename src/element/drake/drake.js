@@ -654,6 +654,7 @@ function createDrake() {
               }
               obs.geometry.computeBoundingBox();
               this.head.geometry.computeBoundingBox();
+              this.body.geometry.computeBoundingBox();
       
               const vector = new THREE.Vector3();
               this.head.getWorldPosition(vector);

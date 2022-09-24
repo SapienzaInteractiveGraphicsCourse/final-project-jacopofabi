@@ -76,8 +76,6 @@ function addTransitionRoom(mainScene, memory, elementsArray) {
                     i--;
                 }
             }
-            if (elem.type == "TB" || elem.type == "TR" || elem.type == "TL" || elem.type == "TLR")
-                console.log("E' stato aggiunto una tra")
             toMove.push(elem);
             if (flag)
                 mainScene.distance += 1;

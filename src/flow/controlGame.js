@@ -171,7 +171,8 @@ function setControl(document, window, renderer, mainScene, memory)
         elem.style.display = "block";
         elem = document.getElementById("menu");
         elem.style.visibility = "hidden";
-        
+        elem = document.getElementById("restart");
+        elem.style.visibility = "hidden";
 
         drake.playAnimation("shake", true);
         scene2.remove(mainScene.cat.obj);

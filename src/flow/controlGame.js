@@ -1,19 +1,34 @@
 
 
 function rotationCamera(mainScene, angle) {
+    console.log("Siamo dentro rotationCamera");
     mainScene.pause = true;
     mainScene.room.enabled = false;
     const group = new TWEEN.Group();
-    createAnimationTransitionRoomTween(mainScene.wallsA, mainScene.room.obj, group, angle);
-    createAnimationTransitionRoomTween(mainScene.elementsA, mainScene.room.obj, group, angle);
-    createAnimationTransitionRoomTween(mainScene.obstaclesA, mainScene.room.obj, group, angle);
+    createAnimationTransitionRoomTween(mainScene.wallsA, mainScene.cat ,group, angle);
+    createAnimationTransitionRoomTween(mainScene.elementsA, mainScene.cat , group, angle);
+    createAnimationTransitionRoomTween(mainScene.obstaclesA,  mainScene.cat , group, angle);
+    //createAnimationTransitionRoomTween([mainScene.cat], mainScene.room , group, angle);
     mainScene.room = null;
     const tween = new TWEEN.Tween(mainScene, group).onComplete(function () {
+        var diff;
+        mainScene.wallsA.forEach(element => {
+            element.obj.position.x = 0;
+        });
+        mainScene.elementsA.forEach(element => {
+            diff = element.obj.position.x;
+            element.obj.position.x = 0;
+        });
+        mainScene.obstaclesA.forEach(element => {
+            element.obj.position.x = 0;
+        });
         mainScene.pause = false;
         for (var i = 0; i < mainScene.tweenGA.length; i++) {
             if (mainScene.tweenGA[i] == group)
                 mainScene.tweenGA.splice(i, 1);
         }
+        if ((diff < 0 && mainScene.cat.obj.position.x < 0) ||(diff > 0 && mainScene.cat.obj.position.x > 0))
+            mainScene.cat.obj.position.x -= diff;
         group.removeAll();
     });
     tween.to({pause: true}, 110).start();
@@ -46,7 +61,7 @@ function onKeyPress(key, mainScene) {
             rotationCamera(mainScene, Math.PI / 2);
         }
     }
-    else if (key == " ") {
+    else if (key == "m") {
         if (mainScene.pause == true && mainScene.died == false) {
             const elem = document.getElementById("pressStart");
             elem.style.visibility = "hidden";
@@ -92,14 +107,16 @@ function setControl(document, window, renderer, mainScene, memory)
     });
 
     document.getElementById("restart").onclick = function () {
-        const menu = document.getElementById("menu");
-        menu.style.visibility = "hidden";
-        reset(mainScene, memory);
-        score.textContent = 0;
-        createWay(mainScene, memory);
-        mainScene.cat.playAnimation("walk", true);
-        mainScene.cat.playAnimation("tile", true);
-        console.log("Tasto restart premuto!");
+            const menu = document.getElementById("menu");
+            menu.style.visibility = "hidden";
+            const button = document.getElementById("restart");
+            button.style.visibility = "hidden";
+            reset(mainScene, memory);
+            score.textContent = 0;
+            createWay(mainScene, memory);
+            mainScene.cat.playAnimation("walk", true);
+            mainScene.cat.playAnimation("tile", true);
+            console.log("Tasto restart premuto!");
     };
 
     document.getElementById("start").onclick = function () {
